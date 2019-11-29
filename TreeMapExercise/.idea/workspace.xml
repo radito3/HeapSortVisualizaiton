@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="a7b51fc0-0999-4c53-9b2a-0e4862f181ca" name="Default Changelist" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DefaultGradleProjectSettings">
+    <option name="isMigrated" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="importingSettings">
+      <MavenImportingSettings>
+        <option name="importAutomatically" value="true" />
+      </MavenImportingSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="1Q8YiHHEXwELJjGGH3Zv5jLZPl3" />
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Application.Main">
+    <configuration name="AlgorithmExercise" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.sap.exercise.AlgorithmExercise" />
+      <module name="TreeMapExercise" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.sap.exercise.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="com.sap.exercise.Main" />
+      <module name="TreeMapExercise" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Main" />
+        <item itemvalue="Application.AlgorithmExercise" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a7b51fc0-0999-4c53-9b2a-0e4862f181ca" name="Default Changelist" comment="" />
+      <created>1563028511331</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1563028511331</updated>
+      <workItem from="1563028516505" duration="2533000" />
+      <workItem from="1563090687684" duration="2527000" />
+      <workItem from="1563199031599" duration="734000" />
+      <workItem from="1563266081396" duration="1373000" />
+      <workItem from="1563368953296" duration="777000" />
+      <workItem from="1563883160798" duration="905000" />
+      <workItem from="1563963689929" duration="138000" />
+      <workItem from="1564061542084" duration="144000" />
+      <workItem from="1564128973219" duration="875000" />
+      <workItem from="1567153817276" duration="205000" />
+      <workItem from="1567763563712" duration="444000" />
+      <workItem from="1567776195729" duration="140000" />
+      <workItem from="1568027268679" duration="124000" />
+      <workItem from="1568035703495" duration="113000" />
+      <workItem from="1568189438678" duration="198000" />
+      <workItem from="1569402527790" duration="55000" />
+      <workItem from="1572514608414" duration="4823000" />
+      <workItem from="1572594023833" duration="49000" />
+      <workItem from="1572856218157" duration="165000" />
+      <workItem from="1572856405074" duration="524000" />
+      <workItem from="1573390669209" duration="6823000" />
+      <workItem from="1573464401876" duration="2484000" />
+      <workItem from="1573834169566" duration="378000" />
+      <workItem from="1573905683414" duration="1152000" />
+      <workItem from="1575026082573" duration="546000" />
+      <workItem from="1575026698014" duration="875000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+</project>
