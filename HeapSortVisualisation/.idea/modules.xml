@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/TreeMapExercise.iml" filepath="$PROJECT_DIR$/TreeMapExercise.iml" />
+      <module fileurl="file://$PROJECT_DIR$/HeapSortVisualisation.iml" filepath="$PROJECT_DIR$/HeapSortVisualisation.iml" />
     </modules>
   </component>
 </project>
