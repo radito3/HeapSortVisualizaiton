@@ -80,7 +80,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="dynamic.classpath" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/sample" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="recentsLimit" value="5" />
   </component>
@@ -186,7 +186,9 @@
       <updated>1359379246138</updated>
       <workItem from="1359379250712" duration="1302000" />
       <workItem from="1577101228705" duration="2546000" />
-      <workItem from="1577114305453" duration="7784000" />
+      <workItem from="1577114305453" duration="7934000" />
+      <workItem from="1577173081629" duration="20405000" />
+      <workItem from="1577203851115" duration="7426000" />
     </task>
     <servers />
   </component>

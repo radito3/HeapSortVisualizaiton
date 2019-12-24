@@ -8,6 +8,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
+import java.util.Objects;
+
 //TODO refactor
 public class Circle extends javafx.scene.shape.Circle {
 
@@ -16,7 +18,7 @@ public class Circle extends javafx.scene.shape.Circle {
 
     private static final int RADIUS = 26;
 
-    private final int key;
+    private int key;
 
     // The circle attributes
     private Point2D point;
@@ -54,7 +56,6 @@ public class Circle extends javafx.scene.shape.Circle {
      * @param gc The graphics object to use for drawing to a component
      */
     public void draw(GraphicsContext gc) {
-        //(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         gc.setLineWidth(3); // Sets the width of the lines
 
         // Create a circle
@@ -90,6 +91,10 @@ public class Circle extends javafx.scene.shape.Circle {
      */
     public int getKey() {
         return this.key;
+    }
+
+    public void setKey(int key) {
+        this.key = key;
     }
 
     /**
@@ -174,8 +179,21 @@ public class Circle extends javafx.scene.shape.Circle {
     }
 
     @Override
-    public String toString() {
-        return "Search Key# " + key +
-            " (x,y) = ("  + point.getX() + ", " + point.getY() + ")";
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Circle circle = (Circle) o;
+        return key == circle.key;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
+    }
+
+    @Override public String toString() {
+        return "Circle{" + "key=" + key + ", point=" + point + '}';
     }
 }

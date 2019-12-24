@@ -4,36 +4,95 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import sample.BinaryTree;
+import sample.HeapSort;
 import sample.shape.Circle;
 import sample.shape.Line;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class GraphicsTree extends Canvas {
 
     private BinaryTree tree;
+    private int[] numbers;
+    private AtomicBoolean sorted = new AtomicBoolean(false);
 
     public GraphicsTree() {
         tree = new BinaryTree();
-        widthProperty().addListener(evt -> drawTree());
-        heightProperty().addListener(evt -> drawTree());
     }
 
-    public void createTree(Integer[] numbers) {
-        for (int number : numbers) {
-            Circle circle = new Circle(number);
-            tree.insertItem(circle);
-        }
-        balanceTree();
+    public int[] getNumbers() {
+        return numbers;
+    }
+
+    public void createTree(int[] numbers) {
+        this.numbers = numbers;
+        tree.insertItems(numbers);
         drawTree();
     }
 
-    private void balanceTree() {
-        tree.balance();
+    public boolean isSorted() {
+        return sorted.get();
     }
 
-    public Circle search(int key) {
-        Circle c = tree.retrieveItem(key);
-        c.draw(getGraphicsContext2D()); //when searching only the circle needs to be drawn, not the whole tree
-        return tree.retrieveItem(key);
+    public void continuousSort() {
+        HeapSort.sort(numbers);
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                displayEvents();
+                sorted.compareAndSet(false, true);
+            } catch (InterruptedException e) {
+                System.out.println("interrupted");
+            }
+        });
+    }
+
+    private void displayEvents() throws InterruptedException {
+        for (HeapSort.Event event : HeapSort.events) {
+            int[] elems = event.getElems();
+            HeapSort.EventType eventType = event.getEventType();
+
+            int elem1 = elems[0];
+            int elem2 = elems[1];
+
+            Circle c1 = tree.retrieveItem(elem1);
+            Circle c2 = tree.retrieveItem(elem2);
+
+            c1.setHighlighter(true);
+            c2.setHighlighter(true);
+
+            c1.draw(getGraphicsContext2D());
+            c2.draw(getGraphicsContext2D());
+
+            Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+
+            if (eventType == HeapSort.EventType.CHANGE) {
+                int temp = c1.getKey();
+                c1.setKey(c2.getKey());
+                c2.setKey(temp);
+
+                //TODO paint then red, signalling a change
+
+                c1.draw(getGraphicsContext2D());
+                c2.draw(getGraphicsContext2D());
+
+                Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+
+                c1.setHighlighter(false);
+                c2.setHighlighter(false);
+
+                c1.draw(getGraphicsContext2D());
+                c2.draw(getGraphicsContext2D());
+            }
+
+            c1.setHighlighter(false);
+            c2.setHighlighter(false);
+
+            c1.draw(getGraphicsContext2D());
+            c2.draw(getGraphicsContext2D());
+        }
     }
 
     private void drawTree() {
@@ -44,8 +103,8 @@ public final class GraphicsTree extends Canvas {
         gc.clearRect(0, 0, width, height);
 
         // If the tree is not empty; draw the lines and circles
-        if (tree.root != null) {
-            int treeHeight = tree.getHeight(tree.root);
+        if (tree.getRoot() != null) {
+            int treeHeight = tree.getHeight(tree.getRoot());
 
             // Get the tree height
             drawTree(gc, tree.getRoot(), 0, this.getWidth(), 0, this.getHeight() / treeHeight);
@@ -59,7 +118,7 @@ public final class GraphicsTree extends Canvas {
         Line newLine = new Line();  // Blank line
 
         // If left node is not null then draw a line to it
-        if (treeNode.left != null) {
+        if (treeNode.getLeft() != null) {
             // Determine the start and end points of the line
             linePoint1 = new Point2D(((xMin + xMax) / 2), yMin + yMax / 2);
             linePoint2 = new Point2D(((xMin + (xMin + xMax) / 2) / 2), yMin + yMax + yMax / 2);
@@ -67,11 +126,11 @@ public final class GraphicsTree extends Canvas {
             newLine.draw(gc);// Draw the line
 
             // Recurse left circle nodes
-            drawTree(gc, treeNode.left, xMin, (xMin + xMax) / 2, yMin + yMax, yMax);
+            drawTree(gc, treeNode.getLeft(), xMin, (xMin + xMax) / 2, yMin + yMax, yMax);
         }
 
         // If right node is not null then draw a line to it
-        if (treeNode.right != null) {
+        if (treeNode.getRight() != null) {
             // Determine the start and end points of the line
             linePoint1 = new Point2D((xMin + xMax) / 2, yMin + yMax / 2);
             linePoint2 = new Point2D((xMax + (xMin + xMax) / 2) / 2, yMin + yMax + yMax / 2);
@@ -79,28 +138,41 @@ public final class GraphicsTree extends Canvas {
             newLine.draw(gc);// Draw the line
 
             // Recurse right circle nodes
-            drawTree(gc, treeNode.right, (xMin + xMax) / 2, xMax, yMin + yMax, yMax);
+            drawTree(gc, treeNode.getRight(), (xMin + xMax) / 2, xMax, yMin + yMax, yMax);
         }
     }
 
     private void drawCircles(GraphicsContext gc, BinaryTree.TreeNode treeNode, double xMin, double xMax, double yMin, double yMax) {
+        Circle circle = treeNode.getCircle();
         Point2D point = new Point2D((xMin + xMax) / 2, yMin + yMax / 2);
 
-        treeNode.circle.setHighlighter(false);
-        treeNode.circle.setPoint(point);
+        circle.setHighlighter(false);
+        circle.setPoint(point);
 
-        treeNode.circle.draw(gc);
+        circle.draw(gc);
 
-        if (treeNode.left != null) {
-            drawCircles(gc, treeNode.left, xMin, (xMin + xMax) / 2, yMin + yMax, yMax);
+        if (treeNode.getLeft() != null) {
+            drawCircles(gc, treeNode.getLeft(), xMin, (xMin + xMax) / 2, yMin + yMax, yMax);
         }
-        if (treeNode.right != null) {
-            drawCircles(gc, treeNode.right, (xMin + xMax) / 2, xMax, yMin + yMax, yMax);
+        if (treeNode.getRight() != null) {
+            drawCircles(gc, treeNode.getRight(), (xMin + xMax) / 2, xMax, yMin + yMax, yMax);
         }
     }
 
     public void clearCanvas() {
         getGraphicsContext2D().clearRect(0, 0, this.getWidth(), this.getHeight());
+    }
+
+    public void clearTree() {
+        tree.clear();
+    }
+
+    public void previousEvent() {
+
+    }
+
+    public void nextEvent() {
+
     }
 }
 

@@ -2,19 +2,31 @@ package sample;
 
 import java.util.LinkedList;
 
-class HeapSort {
+public class HeapSort {
 
-    static class Event {
-        int[] elems;
+    public enum EventType { CHANGE, COMPARISON }
 
-        Event(int[] elems) {
+    public static class Event {
+        private int[] elems;
+        private EventType eventType;
+
+        Event(int[] elems, EventType eventType) {
             this.elems = elems;
+            this.eventType = eventType;
+        }
+
+        public int[] getElems() {
+            return elems;
+        }
+
+        public EventType getEventType() {
+            return eventType;
         }
     }
 
-    static LinkedList<Event> events = new LinkedList<>();
+    public static LinkedList<Event> events = new LinkedList<>();
 
-    static void sort(int[] arr) {
+    public static void sort(int[] arr) {
         int n = arr.length;
 
         // Build heap (rearrange array)
@@ -23,7 +35,7 @@ class HeapSort {
 
         // One by one extract an element from heap
         for (int i = n - 1; i >= 0; i--) {
-            events.add(new Event(new int[] { arr[0], arr[i] }));
+            events.add(new Event(new int[] { arr[0], arr[i] }, EventType.CHANGE));
             // Move current root to end
             int temp = arr[0];
             arr[0] = arr[i];
@@ -39,19 +51,22 @@ class HeapSort {
         int left = 2 * i + 1;
         int right = 2 * i + 2;
 
-        events.add(new Event(new int[] { arr[left], arr[largest] }));
         // If left child is larger than root
-        if (left < n && arr[left] > arr[largest])
-            largest = left;
-
-        events.add(new Event(new int[] { arr[right], arr[largest] }));
+        if (left < n) {
+            events.add(new Event(new int[] { arr[left], arr[largest] }, EventType.COMPARISON));
+            if (arr[left] > arr[largest])
+                largest = left;
+        }
         // If right child is larger than largest so far
-        if (right < n && arr[right] > arr[largest])
-            largest = right;
+        if (right < n) {
+            events.add(new Event(new int[] { arr[right], arr[largest] }, EventType.COMPARISON));
+            if (arr[right] > arr[largest])
+                largest = right;
+        }
 
         // If largest is not root
         if (largest != i) {
-            events.add(new Event(new int[] { arr[i], arr[largest] }));
+            events.add(new Event(new int[] { arr[i], arr[largest] }, EventType.CHANGE));
             int temp = arr[i];
             arr[i] = arr[largest];
             arr[largest] = temp;

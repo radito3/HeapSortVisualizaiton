@@ -2,143 +2,78 @@ package sample;
 
 import sample.shape.Circle;
 
-import java.util.NoSuchElementException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 import java.util.Objects;
 
 public class BinaryTree {
 
-    public TreeNode root;
-
-    public BinaryTree() {
-        root = null;
-    }
+    private TreeNode root;
+    private List<TreeNode> nodes = new ArrayList<>();
 
     public TreeNode getRoot() {
-        if (root == null) {
-            throw new RuntimeException("Empty Tree");
-        }
         return root;
     }
 
-    public void insertItem(Circle newCircle) {
-        root = insertItem(root, newCircle);
-    }
+    public void insertItems(int[] nums) {
+        if (nums.length == 0)
+            return;
 
-    private TreeNode insertItem(TreeNode tNode, Circle newCircle) {
-        if (tNode == null) {
-            tNode = new TreeNode(newCircle);
-            return tNode;
+        int i = 0;
+        root = new TreeNode(new Circle(nums[i++]));
+        nodes.add(root);
+        if (i + 1 >= nums.length) {
+            return;
         }
-        Circle nodeItem = tNode.circle;
 
-        int cmp = Integer.compare(newCircle.getKey(), nodeItem.getKey());
-        if (cmp > 0) {
-            tNode.right = insertItem(tNode.right, newCircle);
-        } else if (cmp < 0) {
-            tNode.left = insertItem(tNode.left, newCircle);
-        }
-        return tNode;
-    }
+        Queue<TreeNode> levelOneQueue = new LinkedList<>();
+        Queue<TreeNode> levelTwoQueue = new LinkedList<>();
 
-    public void balance() {
-        int[] elems = new int[] {}; //get the elements
-        int n; //middle element to be set as root of tree
-        if (elems.length % 2 != 0) {
-            n = (elems.length / 2) + 1;
-        } else {
-            n = elems.length / 2;
+        root.left = new TreeNode(new Circle(nums[i++]));
+        root.right = new TreeNode(new Circle(nums[i++]));
+        levelOneQueue.add(root.left);
+        levelOneQueue.add(root.right);
+        nodes.add(root.left);
+        nodes.add(root.right);
+
+        for (;;) {
+            for (TreeNode t : levelOneQueue) {
+                if (i == nums.length)
+                    return;
+                t.left = new TreeNode(new Circle(nums[i++]));
+                nodes.add(t.left);
+                if (i == nums.length)
+                    return;
+                t.right = new TreeNode(new Circle(nums[i++]));
+                nodes.add(t.right);
+                levelTwoQueue.add(t.left);
+                levelTwoQueue.add(t.right);
+            }
+            levelOneQueue.clear();
+            for (TreeNode t : levelTwoQueue) {
+                if (i == nums.length)
+                    return;
+                t.left = new TreeNode(new Circle(nums[i++]));
+                nodes.add(t.left);
+                if (i == nums.length)
+                    return;
+                t.right = new TreeNode(new Circle(nums[i++]));
+                nodes.add(t.right);
+                levelOneQueue.add(t.left);
+                levelOneQueue.add(t.right);
+            }
+            levelTwoQueue.clear();
         }
-        //TODO rebalance so that each node has a left and right leaf node
     }
 
     public Circle retrieveItem(int searchKey) {
-        return retrieveItem(root, searchKey);
+        return nodes.get(nodes.indexOf(new TreeNode(new Circle(searchKey)))).circle;
     }
 
-    private Circle retrieveItem(TreeNode tNode, int searchKey) {
-        Circle treeItem;
-        int cmp = Integer.compare(searchKey, tNode.circle.getKey());
-
-        if (cmp == 0) {
-            treeItem = tNode.circle;
-        } else if (cmp < 0) {
-            treeItem = retrieveItem(tNode.left, searchKey);
-        } else {
-            treeItem = retrieveItem(tNode.right, searchKey);
-        }
-
-        return treeItem;
-    }
-
-    /**
-     * Deletes a circle from the tree.
-     * @param searchKey a unique identifying value
-     */
-    public void deleteItem(Integer searchKey) throws NoSuchElementException {
-        root = deleteItem(root, searchKey);
-    }
-
-    /**
-     * Deletes a circle from the tree.
-     * @param tNode a tree node
-     * @param searchKey a unique identifying value
-     * @return A tree.TreeNode from within the tree
-     * @Overload deleteItem()
-     */
-    protected TreeNode deleteItem(TreeNode tNode, Integer searchKey) {
-        TreeNode newSubtree;
-
-        if (tNode == null) {
-            throw new NoSuchElementException();
-        }
-
-        Circle nodeItem = tNode.circle;
-        if (Objects.equals(searchKey, nodeItem.getKey())) {
-            tNode = deleteNode(tNode);
-
-        } else if (searchKey < nodeItem.getKey()) {
-            newSubtree = deleteItem(tNode.left, searchKey);
-            tNode.left = newSubtree;
-        } else {
-            newSubtree = deleteItem(tNode.right, searchKey);
-            tNode.right = newSubtree;
-        }
-
-        return tNode;
-    }
-
-    /**
-     * Helper method finds and replaces a deleted node.
-     * @param tNode A tree.TreeNode from within the tree
-     * @return A tree.TreeNode from within the tree
-     */
-    private TreeNode deleteNode(TreeNode tNode) {
-        if ((tNode.left == null) && (tNode.right == null)) {
-            return null;
-        } else if (tNode.left == null) {
-            return tNode.right;
-        } else if (tNode.right == null) {
-            return tNode.left;
-        } else {
-            tNode.circle = findLeftmost(tNode.right);
-            tNode.right = deleteLeftmost(tNode.right);
-            return tNode;
-        }
-    }
-
-    private Circle findLeftmost(TreeNode tNode) {
-        if (tNode.left == null) {
-            return tNode.circle;
-        }
-        return findLeftmost(tNode.left);
-    }
-
-    private TreeNode deleteLeftmost(TreeNode tNode) {
-        if (tNode.left == null) {
-            return tNode.right;
-        }
-        tNode.left = deleteLeftmost(tNode.left);
-        return tNode;
+    public void clear() {
+        root = null;
     }
 
     public int getHeight(TreeNode root) {
@@ -147,21 +82,44 @@ public class BinaryTree {
         return Math.max(getHeight(root.left), getHeight(root.right)) + 1;
     }
 
-    public int getSize(TreeNode root) {
-        if (root == null)
-            return 0;
-        return (getSize(root.left) + getSize(root.right)) + 1;
-    }
-
     public static class TreeNode {
-        public Circle circle;
-        public TreeNode left;
-        public TreeNode right;
+        Circle circle;
+        TreeNode left;
+        TreeNode right;
 
         TreeNode(Circle circle) {
             this.circle = circle;
-            this.left = null;
-            this.right = null;
+        }
+
+        public Circle getCircle() {
+            return circle;
+        }
+
+        public TreeNode getLeft() {
+            return left;
+        }
+
+        public TreeNode getRight() {
+            return right;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            TreeNode treeNode = (TreeNode) o;
+            return Objects.equals(circle, treeNode.circle);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(circle);
+        }
+
+        @Override public String toString() {
+            return "TreeNode{" + "circle=" + circle + '}';
         }
     }
 }
