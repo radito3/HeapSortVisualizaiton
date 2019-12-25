@@ -52,6 +52,7 @@ public class BinaryTree {
                 levelTwoQueue.add(t.right);
             }
             levelOneQueue.clear();
+
             for (TreeNode t : levelTwoQueue) {
                 if (i == nums.length)
                     return;
@@ -74,6 +75,7 @@ public class BinaryTree {
 
     public void clear() {
         root = null;
+        nodes.clear();
     }
 
     public int getHeight(TreeNode root) {
@@ -118,7 +120,8 @@ public class BinaryTree {
             return Objects.hash(circle);
         }
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
             return "TreeNode{" + "circle=" + circle + '}';
         }
     }

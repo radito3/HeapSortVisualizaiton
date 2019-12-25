@@ -11,9 +11,14 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.ResourceBundle;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class Controller implements Initializable {
 
@@ -24,8 +29,14 @@ public class Controller implements Initializable {
 
     private GraphicsTree graphicsTree;
 
+    private ScheduledThreadPoolExecutor service = new ScheduledThreadPoolExecutor(2);
+    private AtomicReference<ScheduledFuture<?>> reference = new AtomicReference<>();
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        service.setRemoveOnCancelPolicy(true);
+        service.setMaximumPoolSize(5);
+
         graphicsTree = new GraphicsTree();
         root_container.setCenter(graphicsTree);
 
@@ -51,48 +62,88 @@ public class Controller implements Initializable {
     }
 
     private void alertComplete() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Heap sort complete", ButtonType.CLOSE);
-        alert.showAndWait()
-             .filter(response -> response == ButtonType.CLOSE)
-             .ifPresent(response -> alert.close());
+        if (reference.get() != null && !reference.get().isCancelled()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Heap sort complete", ButtonType.OK);
+            alert.showAndWait()
+                 .filter(response -> response == ButtonType.OK)
+                 .ifPresent(response -> alert.close());
+            reference.get().cancel(true);
+            reference.set(null);
+        }
     }
 
     @FXML private void randomElements(ActionEvent event) {
         Random random = new Random();
-        String s = "arr";//format numbers as string
-        graphicsTree.createTree(random.ints(15, 1, 50)
-                                      .toArray());
-        input_field.setText(s);
+        int[] arr = random.ints(15, 1, 200)
+                          .toArray();
+        String numbersStr = Arrays.stream(arr)
+                                  .mapToObj(String::valueOf)
+                                  .collect(Collectors.joining(" "));
+        graphicsTree.createTree(arr);
+        input_field.setText(numbersStr);
         input_field.setEditable(false);
     }
 
     @FXML private void stepByStepSort(ActionEvent event) {
-//        graphicsTree.displayCircle(13);
+        if (!graphicsTree.stepByStepSort()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Array to sort is not initialized", ButtonType.OK);
+            alert.showAndWait()
+                 .filter(response -> response == ButtonType.OK)
+                 .ifPresent(response -> alert.close());
+            return;
+        }
         nextStep.setVisible(true);
         previousStep.setVisible(true);
+
+        ScheduledFuture<?> s = service.scheduleAtFixedRate(() -> {
+            if (graphicsTree.isSorted()) {
+                displaySortedArray();
+                alertComplete();
+            }
+        }, 5, 1, TimeUnit.SECONDS);
+        reference.set(s);
     }
 
-    @FXML private void continuousSort(ActionEvent event) throws InterruptedException {
+    //FIXME doesn't display the message at the end
+    // and leaks resources that need to be collected before the program finishes
+    @FXML private void continuousSort(ActionEvent event) {
         graphicsTree.continuousSort();
-        CompletableFuture.runAsync(() -> {
-            while (!graphicsTree.isSorted()) ;
-            displaySortedArray();
-            alertComplete();
-        });
+
+        ScheduledFuture<?> s = service.scheduleAtFixedRate(() -> {
+            if (graphicsTree.isSorted()) {
+                displaySortedArray();
+                alertComplete();
+            }
+        }, 5, 1, TimeUnit.SECONDS);
+        reference.set(s);
     }
 
     private void displaySortedArray() {
         int[] nums = graphicsTree.getNumbers();
-        String s = "kur";
-        input_field.setText(s);
+        String numbersStr = Arrays.stream(nums)
+                                  .mapToObj(String::valueOf)
+                                  .collect(Collectors.joining(" "));
+        input_field.setText(numbersStr);
     }
 
+    //TODO make this async
     @FXML private void nextStep(ActionEvent event) {
-        graphicsTree.nextEvent();
+        if (!graphicsTree.nextEvent()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Sorting complete", ButtonType.OK);
+            alert.showAndWait()
+                 .filter(response -> response == ButtonType.OK)
+                 .ifPresent(response -> alert.close());
+        }
     }
 
-    @FXML private void previousStep(ActionEvent event) {
-        graphicsTree.previousEvent();
+    //TODO make this async, otherwise the circles don't get coloured and the whole app stutters
+    @FXML private void previousStep(ActionEvent event) throws InterruptedException {
+        if (!graphicsTree.previousEvent()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING, "This is the first step", ButtonType.OK);
+            alert.showAndWait()
+                 .filter(response -> response == ButtonType.OK)
+                 .ifPresent(response -> alert.close());
+        }
     }
 
     @FXML private void clear(ActionEvent event) {

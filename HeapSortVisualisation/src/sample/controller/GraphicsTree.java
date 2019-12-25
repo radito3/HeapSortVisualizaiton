@@ -8,6 +8,7 @@ import sample.HeapSort;
 import sample.shape.Circle;
 import sample.shape.Line;
 
+import java.util.ListIterator;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,6 +18,7 @@ public final class GraphicsTree extends Canvas {
     private BinaryTree tree;
     private int[] numbers;
     private AtomicBoolean sorted = new AtomicBoolean(false);
+    private ListIterator<HeapSort.Event> events;
 
     public GraphicsTree() {
         tree = new BinaryTree();
@@ -36,63 +38,32 @@ public final class GraphicsTree extends Canvas {
         return sorted.get();
     }
 
+    public boolean stepByStepSort() {
+        if (numbers != null) {
+            HeapSort.sort(numbers);
+            events = HeapSort.events.listIterator();
+            return true;
+        }
+        return false;
+    }
+
     public void continuousSort() {
         HeapSort.sort(numbers);
 
         CompletableFuture.runAsync(() -> {
             try {
                 displayEvents();
-                sorted.compareAndSet(false, true);
+                sorted.set(true);
             } catch (InterruptedException e) {
-                System.out.println("interrupted");
+                System.err.println("interrupted");
             }
         });
     }
 
     private void displayEvents() throws InterruptedException {
-        for (HeapSort.Event event : HeapSort.events) {
-            int[] elems = event.getElems();
-            HeapSort.EventType eventType = event.getEventType();
-
-            int elem1 = elems[0];
-            int elem2 = elems[1];
-
-            Circle c1 = tree.retrieveItem(elem1);
-            Circle c2 = tree.retrieveItem(elem2);
-
-            c1.setHighlighter(true);
-            c2.setHighlighter(true);
-
-            c1.draw(getGraphicsContext2D());
-            c2.draw(getGraphicsContext2D());
-
-            Thread.sleep(TimeUnit.SECONDS.toMillis(1));
-
-            if (eventType == HeapSort.EventType.CHANGE) {
-                int temp = c1.getKey();
-                c1.setKey(c2.getKey());
-                c2.setKey(temp);
-
-                //TODO paint then red, signalling a change
-
-                c1.draw(getGraphicsContext2D());
-                c2.draw(getGraphicsContext2D());
-
-                Thread.sleep(TimeUnit.SECONDS.toMillis(1));
-
-                c1.setHighlighter(false);
-                c2.setHighlighter(false);
-
-                c1.draw(getGraphicsContext2D());
-                c2.draw(getGraphicsContext2D());
-            }
-
-            c1.setHighlighter(false);
-            c2.setHighlighter(false);
-
-            c1.draw(getGraphicsContext2D());
-            c2.draw(getGraphicsContext2D());
-        }
+        events = HeapSort.events.listIterator();
+        while (displayNextEvent()) ;
+        events = null;
     }
 
     private void drawTree() {
@@ -113,9 +84,9 @@ public final class GraphicsTree extends Canvas {
     }
 
     private void drawTree(GraphicsContext gc, BinaryTree.TreeNode treeNode, double xMin, double xMax, double yMin, double yMax) {
-        Point2D linePoint1; 	// Point_1
-        Point2D linePoint2;   // Point_2
-        Line newLine = new Line();  // Blank line
+        Point2D linePoint1;
+        Point2D linePoint2;
+        Line newLine = new Line();
 
         // If left node is not null then draw a line to it
         if (treeNode.getLeft() != null) {
@@ -146,9 +117,7 @@ public final class GraphicsTree extends Canvas {
         Circle circle = treeNode.getCircle();
         Point2D point = new Point2D((xMin + xMax) / 2, yMin + yMax / 2);
 
-        circle.setHighlighter(false);
         circle.setPoint(point);
-
         circle.draw(gc);
 
         if (treeNode.getLeft() != null) {
@@ -167,12 +136,113 @@ public final class GraphicsTree extends Canvas {
         tree.clear();
     }
 
-    public void previousEvent() {
+    public boolean previousEvent() throws InterruptedException {
+        if (!events.hasPrevious())
+            return false;
 
+        HeapSort.Event event = events.previous();
+        GraphicsContext gc = getGraphicsContext2D();
+
+        int[] elems = event.getElems();
+        HeapSort.EventType eventType = event.getEventType();
+
+        int elem1 = elems[0];
+        int elem2 = elems[1];
+
+        Circle c1 = tree.retrieveItem(elem1);
+        Circle c2 = tree.retrieveItem(elem2);
+
+        c1.setComparisonColorScheme();
+        c2.setComparisonColorScheme();
+
+        c1.draw(gc);
+        c2.draw(gc);
+
+        Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+
+        if (eventType == HeapSort.EventType.CHANGE) {
+            int temp = c1.getKey();
+            c1.setKey(c2.getKey());
+            c2.setKey(temp);
+
+            c1.setChangeColorScheme();
+            c2.setChangeColorScheme();
+
+            c1.draw(gc);
+            c2.draw(gc);
+
+            Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+        }
+
+        c1.setDefaultColorScheme();
+        c2.setDefaultColorScheme();
+
+        c1.draw(gc);
+        c2.draw(gc);
+
+        return true;
     }
 
-    public void nextEvent() {
+    public boolean nextEvent() {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return displayNextEvent();
+            } catch (InterruptedException e) {
+                System.err.println("interrupted");
+            }
+            return false;
+        })
+        .join();
+    }
 
+    private boolean displayNextEvent() throws InterruptedException {
+        if (!events.hasNext())
+            return false;
+
+        HeapSort.Event event = events.next();
+        GraphicsContext gc = getGraphicsContext2D();
+
+        int[] elems = event.getElems();
+        HeapSort.EventType eventType = event.getEventType();
+
+        int elem1 = elems[0];
+        int elem2 = elems[1];
+
+        Circle c1 = tree.retrieveItem(elem1);
+        Circle c2 = tree.retrieveItem(elem2);
+
+        c1.setComparisonColorScheme();
+        c2.setComparisonColorScheme();
+
+        c1.draw(gc);
+        c2.draw(gc);
+
+        Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+
+        if (eventType == HeapSort.EventType.CHANGE) {
+            int temp = c1.getKey();
+            c1.setKey(c2.getKey());
+            c2.setKey(temp);
+
+            c1.setChangeColorScheme();
+            c2.setChangeColorScheme();
+
+            c1.draw(gc);
+            c2.draw(gc);
+
+            Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+        }
+
+        c1.setDefaultColorScheme();
+        c2.setDefaultColorScheme();
+
+        c1.draw(gc);
+        c2.draw(gc);
+
+        if (!events.hasNext())
+            sorted.set(true);
+
+        return true;
     }
 }
 

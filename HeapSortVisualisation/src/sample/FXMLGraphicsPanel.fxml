@@ -22,9 +22,9 @@
                  styleClass="control-button" text="Random elements"/>
          <Button layoutX="227.0" mnemonicParsing="false" layoutY="10.0" onAction="#stepByStepSort" prefHeight="35.0" prefWidth="130.0"
                  styleClass="control-button" text="Step by step sort"/>
-         <Button layoutX="217.0" layoutY="10.0" mnemonicParsing="false" onAction="#nextStep" prefHeight="35.0" prefWidth="110.0"
+         <Button layoutX="217.0" layoutY="10.0" mnemonicParsing="false" onAction="#previousStep" prefHeight="35.0" prefWidth="110.0"
                  styleClass="control-button" text="Previous step" visible="false" fx:id="previousStep"/>
-         <Button layoutX="211.0" layoutY="10.0" mnemonicParsing="false" onAction="#previousStep" prefHeight="35.0" prefWidth="100.0"
+         <Button layoutX="211.0" layoutY="10.0" mnemonicParsing="false" onAction="#nextStep" prefHeight="35.0" prefWidth="100.0"
                  styleClass="control-button" text="Next step" visible="false" fx:id="nextStep"/>
          <Button layoutX="169.0" layoutY="10.0" mnemonicParsing="false" onAction="#continuousSort" prefHeight="35.0" prefWidth="120.0"
                  styleClass="control-button" text="Sort continuous"/>
