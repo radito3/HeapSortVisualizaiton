@@ -1,4 +1,3 @@
-
 .root {
     -fx-font-family: "System";
     -fx-font-size: 1em;
@@ -9,8 +8,6 @@
     -fx-text-base-color: #CBCCCB;
     -fx-text-background-color: #F9F9F9;
     -fx-text-inner-color: #C9C9C9;
-    /*-fx-inner-border: linear-gradient(to bottom, derive(-fx-color,50%) 0%, derive(-fx-color,-5%) 100%);*/
-    /*-fx-body-color: linear-gradient( to bottom, derive(-fx-color, -2%) 0%, derive(-fx-color, 9%) 50%, derive(-fx-color, -9%) 50.5%, derive(-fx-color, -69%) 100%);*/
 }
 .button, .toggle-button, .choice-box {
     -fx-background-radius: 5, 5, 4, 3;
